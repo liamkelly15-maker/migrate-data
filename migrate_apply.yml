@@ -1,0 +1,106 @@
+---
+title: LnS Migration Menu (APPLY)
+menu:
+  step: Migrate all data
+  option: "A"
+  sub:
+    - step: Migrate RDB data
+      option: "1"
+      sub:
+        - step: Dump RDB data to NFS
+          option: "1a"
+          command:
+            type: playbook
+            value: edb_data_dump.yml
+        - step: Setup initial configuration
+          option: "1b"
+          command:
+            type: function
+            value: migrate_functions.migrate_functions.config_setup
+        - step: Migrate data to Core DB pod
+          option: "1c"
+          command:
+            type: function
+            value: migrate_functions.migrate_core_data.migrate_core_data
+        - step: Migrate data to NSO DB pod
+          option: "1d"
+          command:
+            type: function
+            value: migrate_functions.migrate_nso_data.migrate_nso_data
+        - step: Migrate data to Custom Workflow DB pod
+          option: "1e"
+          command:
+            type: function
+            value: migrate_functions.migrate_custwf_data.migrate_custwf_data
+        - step: Migrate data to onboarding DB pod
+          option: "1f"
+          command:
+            type: function
+            value: migrate_functions.migrate_onboarding_data.migrate_onboarding_data
+        - step: Migrate data to order management DB pod
+          option: "1g"
+          command:
+            type: function
+            value: migrate_functions.migrate_wfmgmt_data.migrate_wfmgmt_data
+        - step: Migrate data to toscao DB pod
+          option: "1h"
+          command:
+            type: function
+            value: migrate_functions.migrate_toscao_data.migrate_toscao_data
+        - step: Sync EDA data from CMDB
+          option: "1i"
+          command:
+            type: function
+            value: migrate_functions.migrate_eda_data.migrate_eda_data
+    - step: Migrate AM/DS data
+      option: "2"
+      sub:
+        - step: Save AM/DS data
+          option: "2a"
+          command:
+            type: playbook
+            value: ecm_am_ds_save.yml
+        - step: Migrate DS userstore data
+          option: "2b"
+          command:
+            type: function
+            value: migrate_functions.migrate_ds_data.migrate_userstore_data
+        - step: Migrate DS configstore data
+          option: "2c"
+          command:
+            type: playbook
+            value: ecm_am_ds_migrate_data.yml
+    - step: Migrate DS data (Run only if External IDAM is present)
+      option: "3"
+      sub:
+        - step: Migrate DS data for Tenants configured with Active Directory
+          option: "3a"
+          command:
+            type: playbook
+            value: ecm_am_ds_migrate_data_external_idam.yml --tags ACTIVEDIRECTORY
+        - step: Migrate DS data for Tenants configured with OpenLDAP
+          option: "3b"
+          command:
+            type: playbook
+            value: ecm_am_ds_migrate_data_external_idam.yml --tags OPENLDAP
+    - step: Migrate Other Data
+      option: "4"
+      sub:
+        - step: Migrate NFS Upload Objects
+          option: "4a"
+          command:
+            type: function
+            value: migrate_functions.migrate_uploadobjects.migrate_uploadobjects_call
+        - step: Migrate CUSTWF war files
+          option: "4b"
+          command:
+            type: function
+            value: migrate_functions.migrate_custwf_files.migrate_custwf_war
+    - step: Verify Migrated Objects
+      option: "5"
+      sub:
+        - step: Check against recorded objects
+          option: "5a"
+          command:
+            type: function
+            value: migrate_functions.post_migrate.verify_objects
